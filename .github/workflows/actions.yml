@@ -24,7 +24,6 @@ jobs:
           
       - name: execute py script # run glossary.py
         env:
-          TOKEN: ${{ secrets.SESSION_TOCKEN }}
           AWS_ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
           AWS_SECRET_KEY: ${{ secrets.SECRET_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.SESSION_TOKEN }}
