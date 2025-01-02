@@ -105,8 +105,5 @@ for index, row in glossary_df.iterrows():
         if e.response['Error']['Code'] == 'ConflictException':
             print(f"Business term '{business_term}' already exists in glossary. Skipping.")
     except Exception as e:
-        print(f"Glossary Name : {glossary}")
-        print(f"Glossary Identifier : {glossary_id.get(glossary)}")
-        print(f"Glossary Term : {business_term}")
         print(f"An unexpected error occurred: {e}")
     
