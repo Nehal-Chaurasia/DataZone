@@ -3,6 +3,7 @@ import pandas as pd
 from botocore.exceptions import ClientError
 import time
 import os
+from openpyxl import load_workbook
 import sys
 
 if not sys.warnoptions:
@@ -47,6 +48,18 @@ def create_glossary_list():
         glossary_id[glossary_name] = glossary_name_id
     return glossary_id
 
+def create_glossary_term_list():
+    paginator = datazone_client.get_paginator('search')
+    response = paginator.paginate(domainIdentifier=domain_id.get(domain_name), searchScope='GLOSSARY_TERM')
+    glossary_term_list = {}
+    for page in response:
+        for glossary in page.get('items', []):
+            glossary_term_name = glossary['glossaryTermItem']['name']
+            glossary_term_id = glossary['glossaryTermItem']['id']
+            glossary_id = glossary['glossaryTermItem']['glossaryId']
+            glossary_term_list[glossary_term_name] = {'glossary_term_id': glossary_term_id, 'glossary_id':glossary_id}
+    return glossary_term_list
+
 # Create Boto3 client for AWS DataZone
 datazone_client = boto3.client(
                     'datazone',
@@ -72,38 +85,59 @@ for project in response['items']:
     project_name_id = project['id']
     project_id[project_name] = project_name_id
 
-# Read excel file in a df
-glossary_df = pd.read_excel(excel_file_path, sheet_name=sheet_name)
-glossary_df = glossary_df.dropna(subset=["Glossary"])
-glossary_df = glossary_df.dropna(subset=["Business Term"])
-glossary_df["Description"] = glossary_df["Description"].fillna("")
-# glossary_df = glossary_df[glossary_df['Glossary'] == 'AI Model']
+workbook = load_workbook(excel_file_path)
+sheet = workbook[sheet_name]
 
-for index, row in glossary_df.iterrows():
-    glossary = row["Glossary"]
-    business_term = row["Business Term"]
-    description = row["Description"] 
+# Create a mapping of column names to their indices
+header_mapping = {cell.value: idx + 1 for idx, cell in enumerate(next(sheet.iter_rows(min_row=1, max_row=1)))}
+glossary_col = header_mapping["Glossary"]
+business_term_col = header_mapping["Business Term"]
+desc_col = header_mapping["Description"]
+action_col = header_mapping["Action"]
+
+# Preprocess Data
+rows_to_process = []
+for row in range(2, sheet.max_row + 1):  # Skip header row
+    glossary = sheet.cell(row=row, column=glossary_col).value
+    business_term = sheet.cell(row=row, column=business_term_col).value
+    description = sheet.cell(row=row, column=desc_col).value
+    action = sheet.cell(row=row, column=action_col).value
+
+    # Filter rows and handle empty descriptions
+    if glossary and business_term and action:
+        if action.lower() in ['create', 'update']:
+            rows_to_process.append((row, glossary, business_term, description or "", action))
+
+for row, glossary, business_term, description, action in rows_to_process:
+    if action.lower() == 'create':
+        glossary_id = create_glossary_list()
+        if not glossary.lower() in (key.lower() for key in glossary_id):
+            create_glossary(domain_id.get(domain_name), glossary, 'No Description', project_id.get(project_name))
+            time.sleep(30)
+
+        glossary_id = create_glossary_list()
+        if glossary not in glossary_id.keys():
+            print("Sleeping for 2 mins for glossary to get created.")
+            time.sleep(120)
+
+        glossary_id = create_glossary_list()
+        try:
+            print(f"Creating business term {business_term}")
+            create_business_term(domain_id.get(domain_name), glossary_id.get(glossary), description, business_term)
+        except datazone_client.exceptions.ConflictException as e:
+            print(f"Conflict: Glossary term '{business_term}' already exists. Skipping.")
     
-    glossary = str(glossary)
-
-    # Create glossay
-    glossary_id = create_glossary_list()
-    if not glossary.lower() in (key.lower() for key in glossary_id):
-        create_glossary(domain_id.get(domain_name), glossary, 'No Description', project_id.get(project_name))
-        time.sleep(30)
-    
-    glossary_id = create_glossary_list()
-    if glossary not in glossary_id.keys():
-        print("Sleeping for 2 mins for glossary to get created.")
-        time.sleep(120)
-
-    # Create business term
-    glossary_id = create_glossary_list()
-    try:
-        create_business_term(domain_id.get(domain_name), glossary_id.get(glossary), description, business_term)
-    except ClientError as e:
-        if e.response['Error']['Code'] == 'ConflictException':
-            print(f"Business term '{business_term}' already exists in glossary. Skipping.")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+    elif action.lower() == 'update':
+        try:
+            print(f"Updating business term: {business_term}")
+            glossary_term_list = create_glossary_term_list()
+            glossary_term_name = glossary_term_list.get(business_term)
+            response = datazone_client.update_glossary_term(
+                    domainIdentifier=domain_id.get(domain_name),
+                    glossaryIdentifier=glossary_id.get(glossary),
+                    identifier=glossary_term_name.get('glossary_term_id'),
+                    longDescription=description
+                )
+        except:
+            print("Business Term is not created")
     
