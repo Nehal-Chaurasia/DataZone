@@ -23,7 +23,7 @@ jobs:
           pip install boto3 pandas openpyxl numpy
           
       - name: execute py script # run glossary.py
-        run: python main.py
+        run: python glossary.py
           
       # - name: commit files
       #   run: |
