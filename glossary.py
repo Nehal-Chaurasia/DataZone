@@ -9,9 +9,9 @@ if not sys.warnoptions:
     import warnings
     warnings.simplefilter("ignore")
 
-access_key = os.environ['ACCESS_KEY']
-secret_key = os.environ['SECRET_KEY']
-session_token = os.environ["SESSION_TOKEN"]
+access_key = os.environ['AWS_ACCESS_KEY']
+secret_key = os.environ['AWS_SECRET_KEY']
+session_token = os.environ["AWS_SESSION_TOKEN"]
 region = 'eu-west-1'
 
 domain_name = 'te-dip'
