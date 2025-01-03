@@ -126,6 +126,8 @@ for row, glossary, business_term, description, action in rows_to_process:
             create_business_term(domain_id.get(domain_name), glossary_id.get(glossary), description, business_term)
         except datazone_client.exceptions.ConflictException as e:
             print(f"Conflict: Glossary term '{business_term}' already exists. Skipping.")
+        sheet.cell(row=row, column=action_col, value="No")
+        workbook.save(excel_file_path)
     
     elif action.lower() == 'update':
         try:
@@ -140,4 +142,6 @@ for row, glossary, business_term, description, action in rows_to_process:
                 )
         except:
             print("Business Term is not created")
+        sheet.cell(row=row, column=action_col, value="No")
+        workbook.save(excel_file_path)
     
