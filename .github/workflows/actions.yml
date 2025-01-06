@@ -1,8 +1,7 @@
 name: run glossary.py
 
 on:
-  schedule:
-    - cron: '*/20 * * * *' # Run ever 20 mins
+  workflow_dispatch:
 
 jobs:
   build:
