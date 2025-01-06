@@ -112,22 +112,23 @@ for row in range(2, sheet.max_row + 1):  # Skip header row
 
 for row, glossary, business_term, description in rows_to_process:
     # if action.lower() == 'create':
-    glossary_id = create_glossary_list()
-    if not glossary.lower() in (key.lower() for key in glossary_id):
-        create_glossary(domain_id.get(domain_name), glossary, 'No Description', project_id.get(project_name))
-        time.sleep(30)
+    if glossary == 'Framework':
+        glossary_id = create_glossary_list()
+        if not glossary.lower() in (key.lower() for key in glossary_id):
+            create_glossary(domain_id.get(domain_name), glossary, 'No Description', project_id.get(project_name))
+            time.sleep(30)
 
-    glossary_id = create_glossary_list()
-    if glossary not in glossary_id.keys():
-        print("Sleeping for 2 mins for glossary to get created.")
-        time.sleep(120)
+        glossary_id = create_glossary_list()
+        if glossary not in glossary_id.keys():
+            print("Sleeping for 2 mins for glossary to get created.")
+            time.sleep(120)
 
-    glossary_id = create_glossary_list()
-    try:
-        print(f"Creating business term {business_term}")
-        create_business_term(domain_id.get(domain_name), glossary_id.get(glossary), description, business_term)
-    except datazone_client.exceptions.ConflictException as e:
-        print(f"Conflict: Glossary term '{business_term}' already exists. Skipping.")
+        glossary_id = create_glossary_list()
+        try:
+            print(f"Creating business term {business_term}")
+            create_business_term(domain_id.get(domain_name), glossary_id.get(glossary), description, business_term)
+        except datazone_client.exceptions.ConflictException as e:
+            print(f"Conflict: Glossary term '{business_term}' already exists. Skipping.")
 
     # sheet.cell(row=row, column=action_col, value="No")
     # workbook.save(excel_file_path)
