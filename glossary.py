@@ -17,7 +17,9 @@ region = 'eu-west-1'
 
 domain_name = 'te-dip'
 project_name = 'Admin'
-excel_file_path="/Users/nehal.chaurasia/Library/CloudStorage/OneDrive-CollinsonCentralServicesLimited/Collinson Business Glossary v1.1.xlsx"
+current_dir = os.path.dirname(os.path.abspath(__file__))
+excel_file_path = os.path.join(current_dir, "Collinson Business Glossary v1.1.xlsx")
+
 sheet_name = 'Business Glossary'
 
 # Create a Glossary.
@@ -104,44 +106,45 @@ for row in range(2, sheet.max_row + 1):  # Skip header row
     action = sheet.cell(row=row, column=action_col).value
 
     # Filter rows and handle empty descriptions
-    if glossary and business_term and action:
-        if action.lower() in ['create', 'update']:
-            rows_to_process.append((row, glossary, business_term, description or "", action))
+    if glossary and business_term:
+        # if action.lower() in ['create', 'update']:
+        rows_to_process.append((row, glossary, business_term, description or ""))
 
-for row, glossary, business_term, description, action in rows_to_process:
-    if action.lower() == 'create':
-        glossary_id = create_glossary_list()
-        if not glossary.lower() in (key.lower() for key in glossary_id):
-            create_glossary(domain_id.get(domain_name), glossary, 'No Description', project_id.get(project_name))
-            time.sleep(30)
+for row, glossary, business_term, description in rows_to_process:
+    # if action.lower() == 'create':
+    glossary_id = create_glossary_list()
+    if not glossary.lower() in (key.lower() for key in glossary_id):
+        create_glossary(domain_id.get(domain_name), glossary, 'No Description', project_id.get(project_name))
+        time.sleep(30)
 
-        glossary_id = create_glossary_list()
-        if glossary not in glossary_id.keys():
-            print("Sleeping for 2 mins for glossary to get created.")
-            time.sleep(120)
+    glossary_id = create_glossary_list()
+    if glossary not in glossary_id.keys():
+        print("Sleeping for 2 mins for glossary to get created.")
+        time.sleep(120)
 
-        glossary_id = create_glossary_list()
-        try:
-            print(f"Creating business term {business_term}")
-            create_business_term(domain_id.get(domain_name), glossary_id.get(glossary), description, business_term)
-        except datazone_client.exceptions.ConflictException as e:
-            print(f"Conflict: Glossary term '{business_term}' already exists. Skipping.")
-        sheet.cell(row=row, column=action_col, value="No")
-        workbook.save(excel_file_path)
+    glossary_id = create_glossary_list()
+    try:
+        print(f"Creating business term {business_term}")
+        create_business_term(domain_id.get(domain_name), glossary_id.get(glossary), description, business_term)
+    except datazone_client.exceptions.ConflictException as e:
+        print(f"Conflict: Glossary term '{business_term}' already exists. Skipping.")
+
+    # sheet.cell(row=row, column=action_col, value="No")
+    # workbook.save(excel_file_path)
     
-    elif action.lower() == 'update':
-        try:
-            print(f"Updating business term: {business_term}")
-            glossary_term_list = create_glossary_term_list()
-            glossary_term_name = glossary_term_list.get(business_term)
-            response = datazone_client.update_glossary_term(
-                    domainIdentifier=domain_id.get(domain_name),
-                    glossaryIdentifier=glossary_id.get(glossary),
-                    identifier=glossary_term_name.get('glossary_term_id'),
-                    longDescription=description
-                )
-        except:
-            print("Business Term is not created")
-        sheet.cell(row=row, column=action_col, value="No")
-        workbook.save(excel_file_path)
+    # elif action.lower() == 'update':
+    #     try:
+    #         print(f"Updating business term: {business_term}")
+    #         glossary_term_list = create_glossary_term_list()
+    #         glossary_term_name = glossary_term_list.get(business_term)
+    #         response = datazone_client.update_glossary_term(
+    #                 domainIdentifier=domain_id.get(domain_name),
+    #                 glossaryIdentifier=glossary_id.get(glossary),
+    #                 identifier=glossary_term_name.get('glossary_term_id'),
+    #                 longDescription=description
+    #             )
+    #     except:
+    #         print("Business Term is not created")
+    #     sheet.cell(row=row, column=action_col, value="No")
+    #     workbook.save(excel_file_path)
     
