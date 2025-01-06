@@ -108,7 +108,7 @@ for row in range(2, sheet.max_row + 1):  # Skip header row
     # Filter rows and handle empty descriptions
     if glossary and business_term:
         # if action.lower() in ['create', 'update']:
-        rows_to_process.append((row, glossary, business_term, description or ""))
+        rows_to_process.append((row, glossary, business_term, description or "No Description"))
 
 for row, glossary, business_term, description in rows_to_process:
     # if action.lower() == 'create':
