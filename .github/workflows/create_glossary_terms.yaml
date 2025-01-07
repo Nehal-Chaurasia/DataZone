@@ -1,4 +1,4 @@
-name: run glossary.py
+name: Add Glossary Terms
 
 on:
   workflow_dispatch:
@@ -27,16 +27,3 @@ jobs:
           AWS_SECRET_KEY: ${{ secrets.SECRET_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.SESSION_TOKEN }}
         run: python glossary.py
-          
-      # - name: commit files
-      #   run: |
-      #     git config --local user.email "action@github.com"
-      #     git config --local user.name "GitHub Action"
-      #     git add -A
-      #     git diff-index --quiet HEAD || (git commit -a -m "updated logs" --allow-empty)
-          
-      # - name: push changes
-      #   uses: ad-m/github-push-action@v0.6.0
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     branch: main 
