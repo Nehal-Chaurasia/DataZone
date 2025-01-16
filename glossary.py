@@ -95,7 +95,7 @@ header_mapping = {cell.value: idx + 1 for idx, cell in enumerate(next(sheet.iter
 glossary_col = header_mapping["Glossary"]
 business_term_col = header_mapping["Business Term"]
 desc_col = header_mapping["Description"]
-action_col = header_mapping["Action"]
+# action_col = header_mapping["Action"]
 
 # Preprocess Data
 rows_to_process = []
@@ -103,7 +103,7 @@ for row in range(2, sheet.max_row + 1):  # Skip header row
     glossary = sheet.cell(row=row, column=glossary_col).value
     business_term = sheet.cell(row=row, column=business_term_col).value
     description = sheet.cell(row=row, column=desc_col).value
-    action = sheet.cell(row=row, column=action_col).value
+    # action = sheet.cell(row=row, column=action_col).value
 
     # Filter rows and handle empty descriptions
     if glossary and business_term:
