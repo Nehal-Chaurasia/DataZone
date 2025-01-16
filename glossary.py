@@ -16,7 +16,7 @@ secret_key = os.environ['AWS_SECRET_KEY']
 region = 'eu-west-1'
 
 domain_name = 'te-dip'
-project_name = 'Admin'
+project_name = 'Sub-domains'
 current_dir = os.path.dirname(os.path.abspath(__file__))
 excel_file_path = os.path.join(current_dir, "Collinson Business Glossary v1.1.xlsx")
 
