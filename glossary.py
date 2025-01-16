@@ -12,7 +12,7 @@ if not sys.warnoptions:
 
 access_key = os.environ['AWS_ACCESS_KEY']
 secret_key = os.environ['AWS_SECRET_KEY']
-session_token = os.environ["AWS_SESSION_TOKEN"]
+# session_token = os.environ["AWS_SESSION_TOKEN"]
 region = 'eu-west-1'
 
 domain_name = 'te-dip'
@@ -68,7 +68,7 @@ datazone_client = boto3.client(
                     region_name = 'eu-west-1',
                     aws_access_key_id=access_key,
                     aws_secret_access_key=secret_key,
-                    aws_session_token = session_token,
+                    # aws_session_token = session_token,
                     verify=False)
 
 # Create list of domain's
